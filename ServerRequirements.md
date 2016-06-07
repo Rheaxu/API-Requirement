@@ -11,7 +11,6 @@ Add a middleware to all api's that all the requests will firstly stop here for s
   
 In server.js:
 
-	```javascript
 	/* the first two api will not go through the middleware */
 	apiRoutes.post('/authenticate', function(req, res) {
 		//...
@@ -48,16 +47,13 @@ In server.js:
 	
 	/* apply the routes to our application with the prefix /api */
 	app.use('/api', apiRoutes); // apply the routes to our application with the prefix /api
-	```
 	
 In config.js:
 
-	```javascript
 	module.exports = {
     	'secret': 'whosyourdaddy',
     	'database': 'mongodb://noder:noderauth&54;proximus.modulusmongo.net:27017/so9pojyN'
 	};
-	```
 
 ### API 1: Change password
 __/password__    
