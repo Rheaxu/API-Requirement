@@ -26,13 +26,13 @@ Restful API requirement
 
 以下是用户信息的数据结构: （经过讨论，我们决定username 和 email 之间只保留 email）
 
-Id: INT(11)
-password: VARCHAR(100) (我们请求用户信息的时候不需要返回此项)
-firstName: VARCHAR(100)
-lastName: VARCHAR(100)
-email: VARCHAR(100)
-gender: VARCHAR(45)
-birthday: DATE
-avatar: VARCHAR (以url形式返回给ios)  图片数据如何存储请自行决定
-phone: VARCHAR(20)
-other: TEXT
+  Id: INT(11)  
+  password: VARCHAR(100) (我们请求用户信息的时候不需要返回此项)
+  firstName: VARCHAR(100)
+  lastName: VARCHAR(100)
+  email: VARCHAR(100)
+  gender: VARCHAR(45)
+  birthday: DATE
+  avatar: VARCHAR (以url形式返回给ios)  图片数据如何存储请自行决定
+  phone: VARCHAR(20)
+  other: TEXT
