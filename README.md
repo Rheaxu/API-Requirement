@@ -13,7 +13,8 @@ conn.query("insert n, l, k into table UIO values ($1, $2, $3)", [23, "asdf", 09]
 6. 图片：二进制存放在s3中，生成url存在数据库中
 
 
-Restful API requirement
+Restful API requirement  
+
 1. login
 2. signup
 3. logout
@@ -21,6 +22,7 @@ Restful API requirement
 5. get user's profile
 6. modify user's profile
 7. upload picture(avatar)
+8. change pasword
 
 以下是用户信息的数据结构: （经过讨论，我们决定username 和 email 之间只保留 email）
 
