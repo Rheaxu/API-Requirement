@@ -1,117 +1,132 @@
-
-
 # API Requirements
 
+##response format
 
-## Token (included in HTTPHeader ) 
-Why? When user login, the server generates a token(JWT) for the user. The token is time sensitive. It will expire after a certain amount of time. Every http request will be sent along with the token. When the user open the app again, token validation will be intriggered. If the token is still valid, the user will be automatically logged in, otherwise, the user will be asked to login again.   
- 
-__Example:__  
-Add a middleware to all api's that all the requests will firstly stop here for server to check the validation of token. If the token is valid then next() to the designated api, otherwise reject this request.
-  
-In server.js:
-	
-	/* the first two api will not go through the middleware */
-	apiRoutes.post('/authenticate', function(req, res) {
-		//...
-	});
-	apiRoutes.post('/register', function(req, res) {
-		//...
-	});
-	
-	/* route middleware to verify a token */
-	apiRoutes.use(function(req, res, next) {
-		var token = req.body.token || req.query.token || req.headers['x-access-token'];
-		if (token) {
-    		jwt.verify(token, app.get('superSecret'), function(err, decoded) {
-    			if (err) {
-     	 			return res.status(403).send({
-            		success: false,
-            		message: 'Log in expired.'
-        			});
-      			} else {
-        			// if everything is good, save to request for use in other routes
-        			req.decoded = decoded;
-        			next();
-      			}
-      		});
-    	} else {
-    		// if there is no token
-    		// return an error
-    		return res.status(403).send({
-        		success: false,
-        		message: 'Log in expired.'
-    		});
-    	}
-    });
-	
-	/* apply the routes to our application with the prefix /api */
-	app.use('/api', apiRoutes); // apply the routes to our application with the prefix /api
-	
-In config.js:
+__Sample__
 
-	module.exports = {
-    	'secret': 'whosyourdaddy',
-    	'database': 'mongodb://noder:noderauth&54;proximus.modulusmongo.net:27017/so9pojyN'
-	};
+    response:
+    {
+      "request": {
+        "headers": {
+          "host": "localhost:8081",
+          "connection": "keep-alive",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36",
+          "postman-token": "e1e22fc0-279f-23ba-1b33-5a6018f34201",
+          "cache-control": "no-cache",
+          "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRyb3ljaGVuMUBidS5lZHUiLCJpYXQiOjE0NjU4NTE2MTAsImV4cCI6MTQ2NTg1NTIxMH0.cGGhW-rnmZCrcv70vqDWGgSYhk7ZyZzwDi_RkQCe9F4",
+          "content-type": "application/json",
+          "accept": "*/*",
+          "accept-encoding": "gzip, deflate, sdch",
+          "accept-language": "en-US,en;q=0.8"
+        },
+        "method": "GET",
+        "url": "/profile",
+        "status": 200,
+        "body": {},
+        "requestTime": "2016-06-13T21:06:12.069Z"
+      },
+      "data": [
+        {
+          "firstName": "xuanyi",
+          "lastName": "chen",
+          "gender": "m",
+          "birthday": "2014-11-22T05:00:00.000Z",
+          "avatar": null,
+          "phone": "6178169142",
+          "other": null
+        }
+      ],
+      "error": {
+        "message": ""
+      },
+      "responseTime": "2016-06-13T21:06:12.070Z"
+    }
 
-### API 1: Change password
+The response.request.authorization, response.request.body, response.data, response.err.message may be empty depending on HTTP methods and err.  
+If an error occures, the response.error.message is sure to be "not null", and the response.status is not 200.  
+Success response will not return response.err.message, and the response.status is 200.  
+Anything relating to the password is hided in response.  
+
+__http_method_and_response_body__  
+**GET**: response.request.body is empty, response.data is the data retrived from the database  
+**POST**: response.request.body is the new data intended to insert into database, response.data is empty  
+**PUT**: response.request.body is the new data intended to update database, response.data is empty  
+**DELETE**: response.request.body is empty, response.data is empty
+
+If error occures, the response.request.body will be the req.body if any, response.data is empty
+
+## Token (included in HTTPHeader.Authorization ) 
+
+__decoded_jwt_sample__
+
+    {
+      "header": {
+        "alg": "HS256",
+          "typ": "JWT"
+      },
+      "payload: { 
+        "email": 'troychen1@bu.edu', 
+        "iat": "1465433434",
+        "exp": "1465437034" 
+      },
+      "signature":""
+    }
+
+The jwt is encoded with HS256. The signature part is generated automatically.
+
+### API 1: Change password(PUT)
 __/password__    
-**HttpHeader:**'x-access-token': token   
+**HttpHeader:**'Authorization': token   
 **Content-Type:**'application/json'  
-**Request Body:** userid, old_pwd, newpwd  
-**Response:** err_msg (if the old_pwd is not correct or changing new password fails)
+**Request Body:** oldPwd, newPwd  
 
 
-###API 2: Logout
+###API 2: Logout(DELETE)
 __/logout__  
 The server will delete the token from the database  
-**HttpHeader:**'x-access-token': token   
-**Content-Type:** "application/json"  
-**Reqeust Body:** email  
+**HttpHeader:**'Authorization': token   
+**Content-Type:** "application/json"   
 
 
 ###API 3: Forget Password
 __/password__  
-User provide his/her email, server will generate a random password and sent to the user through email  
-**HttpHeader:**'x-access-token': token  
-**Content-Type:** "application/json"  
-**Request Body:** email  
-**Response Body:** success/err_msg  
+**HttpHeader:**'Authorization': token  
+**Content-Type:** "application/json"   
 
 
-###API 4: Profile 
+###API 4: Change Profile(PUT)
 // avatar might be too large to upload every time?  
 __/profile__  
-Only the following fields can be changed through this method: firstName, lastName, email, gender, birthday, avatar, phone, other. Password has to be changed in forget password. Email cannot be changed once register is finished.  
-**HttpHeader:**'x-access-token': token   
+Only the following fields can be changed through this method: firstName, lastName, gender, birthday, avatar, phone, other. Password has to be changed in forget password. Email cannot be changed once register is finished.  
+**HttpHeader:**'Authorization': token   
 **Content-Type:** "application/json"  
-**Request Body:** firstName, lastName, email, gender, birthday, avatar, phone, other  
-**Content-Type:** "application/json"  
+**Request Body:** firstName, lastName, gender, birthday, avatar, phone, other  
 
 
-###API 5: Login
+###API 5: Login(POST)
 __/login__  
-The user will get a token the first time it logs in. When the user reopen the app, the token will be validated first. If it's still valid, the user will be automatically logged in, otherwise, the user will be asked to enter login info again  
-**HttpHeader:**'x-access-token': token  
+The user will get a token the first time it logs in. When the user reopen the app, the token will be validated first. If it's still valid, the user will be automatically logged in, otherwise, the user will be asked to enter login info again    
 **Content-Type:** "application/json"  
-**Request Body:** {username: '', password:''}  
-**Response Body:** userInfo: {username: '', token: '', firstName:'', lastName:'', gender: '', birthday: '', avatar: '', phone: '', other: ''}
+**Request Body:** email, password  
 
 
-###API 6: Sign Up
-__/signup__  
-**HttpHeader:**'x-access-token': token  
+###API 6: Sign Up(POST)
+__/signup__   
 **Content-Type:** "application/json"  
-**Request Body:** userInfo: {username: '', token: '', firstName:'', lastName:'', gender: '', birthday: '', avatar: '', phone: '', other: ''}  
-Avatar, phone, other are not required. Other fields are required.
+**Request Body:** userInfo: {token: '', firstName:'', lastName:'', gender: '', birthday: '', avatar: '', phone: '', other: ''}  
+Avatar, gender, other are not required. Other fields are required.  //phone?
 
 
-###API 7: Avatar
-__/avatar  
+###API 7: Avatar(PUT)
+__/avatar__  
 The server will upload the profile pic to s3 storage  
-**HttpHeader:**'x-access-token': token  
+**HttpHeader:**'Authorization': token  
 **Content-Type:** "application/json"   
 **Request Body:** the binary data of the picture  
-**Response Body:** avatar: {success/err_msg, pic url}  
 
+
+###API 8: Get Profile(GET)
+__/profile__
+Before the user tries to update the profile, this api will provide the information stored in the database for reference.  
+**HttpHeader:**'Authorization': token  
+**Content-Type:** "application/json"   
