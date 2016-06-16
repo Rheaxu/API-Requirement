@@ -1,3 +1,4 @@
+
 API Documentation
 ========================
 
@@ -6,13 +7,12 @@ __/password__
 **HttpHeader:** "Authorization": token   
 **Content-Type:** "application/json"  
 **Request Body:**  
-```json 
-	response:
+
 	{
       "oldPwd": "oldPassword",
       "newPwd: "newPassword"
     }
-```
+
 
 ###API 2: Logout(DELETE)
 __/logout__  
@@ -33,7 +33,7 @@ Only the following fields can be changed through this method: firstName, lastNam
 **HttpHeader:**"Authorization": token   
 **Content-Type:** "application/json"  
 **Request Body:**  
-```json
+
 	  {
 		"firstName": "newFirstName",
 		"lastName: "newLastName",
@@ -43,23 +43,23 @@ Only the following fields can be changed through this method: firstName, lastNam
 		"phone": "6178169142",
 		"other": "somethingElse"
 	  }
-```
+
 ###API 5: Login(POST)
 __/login__  
 The user will get a token the first time it logs in. When the user reopen the app, the token will be validated first. If it's still valid, the user will be automatically logged in, otherwise, the user will be asked to enter login info again    
 **Content-Type:** "application/json"  
 **Request Body:**  
-```json
+
 	{
       "email": "troychen@bu.edu",
       "password: "atLeastSixDigit"
     }
-```
+
 ###API 6: Sign Up(POST)
 __/signup__   
 **Content-Type:** "application/json"  
 **Request Body:**  
-```json
+
 	{
 		"firstName": "xuanyi",
 		"lastName: "chen",
@@ -69,7 +69,7 @@ __/signup__
 		"phone": "6178169142",
 		"other": ""
 	}
-```
+
 Avatar, gender, other are not required. Other fields are required.  
 
 ###API 7: Avatar(PUT)
@@ -145,7 +145,7 @@ If error occures, the response.request.body will be the req.body if any, respons
 ###Token (included in HTTPHeader.Authorization ) 
 
 __decoded_jwt_sample__
-```json
+
     {
       "header": {
         "alg": "HS256",
@@ -158,7 +158,7 @@ __decoded_jwt_sample__
       },
       "signature":""
     }
-```
+
 The jwt is encoded with HS256. The signature part is generated automatically.
 
 ### DATATYPE(Signup, Change profile)
