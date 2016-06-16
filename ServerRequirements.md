@@ -7,6 +7,7 @@ __/password__
 **Content-Type:** "application/json"  
 **Request Body:**  
 ```json 
+	response:
 	{
       "oldPwd": "oldPassword",
       "newPwd: "newPassword"
