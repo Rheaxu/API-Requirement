@@ -1,9 +1,93 @@
-# API Requirements
+API Documentation
+========================
 
-##response format
+###API 1: Change password(PUT)
+__/password__    
+**HttpHeader:** "Authorization": token   
+**Content-Type:** "application/json"  
+**Request Body:**  
+```json 
+	{
+      "oldPwd": "oldPassword",
+      "newPwd: "newPassword"
+    }
+```
 
-__Sample__
+###API 2: Logout(DELETE)
+__/logout__  
+The server will delete the token from the database  
+**HttpHeader:** "Authorization": token   
+**Content-Type:** "application/json"   
 
+
+###API 3: Forget Password(TODO)
+__/password__  
+**HttpHeader:** "Authorization": token  
+**Content-Type:** "application/json"   
+
+
+###API 4: Change Profile(PUT)
+__/profile__  
+Only the following fields can be changed through this method: firstName, lastName, gender, birthday, avatar, phone, other. Password has to be changed in forget password. Email cannot be changed once register is finished.  
+**HttpHeader:**"Authorization": token   
+**Content-Type:** "application/json"  
+**Request Body:**  
+```json
+	  {
+		"firstName": "newFirstName",
+		"lastName: "newLastName",
+		"gender": "f",
+		"birthday": "2014/11/22",
+		"avatar": "",
+		"phone": "6178169142",
+		"other": "somethingElse"
+	  }
+```
+###API 5: Login(POST)
+__/login__  
+The user will get a token the first time it logs in. When the user reopen the app, the token will be validated first. If it's still valid, the user will be automatically logged in, otherwise, the user will be asked to enter login info again    
+**Content-Type:** "application/json"  
+**Request Body:**  
+```json
+	{
+      "email": "troychen@bu.edu",
+      "password: "atLeastSixDigit"
+    }
+```
+###API 6: Sign Up(POST)
+__/signup__   
+**Content-Type:** "application/json"  
+**Request Body:**  
+```json
+	{
+		"firstName": "xuanyi",
+		"lastName: "chen",
+		"gender": "m",
+		"birthday": "2014/11/22",
+		"avatar": "",
+		"phone": "6178169142",
+		"other": ""
+	}
+```
+Avatar, gender, other are not required. Other fields are required.  
+
+###API 7: Avatar(PUT)
+__/avatar__  
+The server will upload the profile pic to s3 storage  
+**HttpHeader:** "Authorization": token  
+**Content-Type:** "application/json"   
+**Request Body:** the binary data of the picture  
+
+
+###API 8: Get Profile(GET)
+__/profile__
+Before the user tries to update the profile, this api will provide the information stored in the database for reference.  
+**HttpHeader:** "Authorization": token  
+**Content-Type:** "application/json"   
+
+
+##General Response Format
+```json
     response:
     {
       "request": {
@@ -41,11 +125,13 @@ __Sample__
       },
       "responseTime": "2016-06-13T21:06:12.070Z"
     }
-
-The response.request.authorization, response.request.body, response.data, response.err.message may be empty depending on HTTP methods and err.  
-If an error occures, the response.error.message is sure to be "not null", and the response.status is not 200.  
-Success response will not return response.err.message, and the response.status is 200.  
-Anything relating to the password is hided in response.  
+```  
+  </br>
+  </br>
+1. The response.request.authorization, response.request.body, response.data, response.err.message may be empty depending on HTTP methods and err.  
+2. If an error occures, the response.error.message is sure to be "not null", and the response.status is not 200.  
+3. Success response will not return response.err.message, and the response.status is 200.  
+4. Anything relating to the password is hided in response.  
 
 __http_method_and_response_body__  
 **GET**: response.request.body is empty, response.data is the data retrived from the database  
@@ -55,10 +141,10 @@ __http_method_and_response_body__
 
 If error occures, the response.request.body will be the req.body if any, response.data is empty
 
-## Token (included in HTTPHeader.Authorization ) 
+###Token (included in HTTPHeader.Authorization ) 
 
 __decoded_jwt_sample__
-
+```json
     {
       "header": {
         "alg": "HS256",
@@ -71,62 +157,20 @@ __decoded_jwt_sample__
       },
       "signature":""
     }
-
+```
 The jwt is encoded with HS256. The signature part is generated automatically.
 
-### API 1: Change password(PUT)
-__/password__    
-**HttpHeader:**'Authorization': token   
-**Content-Type:**'application/json'  
-**Request Body:** oldPwd, newPwd  
+### DATATYPE(Signup, Change profile)
 
+__datatype_and_requirement__
 
-###API 2: Logout(DELETE)
-__/logout__  
-The server will delete the token from the database  
-**HttpHeader:**'Authorization': token   
-**Content-Type:** "application/json"   
+**password:** should be at least 6 digits, do not encode;  
+**firstName:** should be less than 100 characters;  
+**lastName:** should be less than 100 characters;  
+**email:** should be a good formatted email, eg, hehechen@bu.edu;  
+**gender:** should be single character, lower case 'm' or 'f';  
+**birthday:** should be like 1991/11/12;  
+**avatar:** should be binary code, max 65,535 bytes;  
+**phone:** should be numbers only, more than 6 digits, max 20 digits;  
+**other:** should be text, max length 65,535 characters  
 
-
-###API 3: Forget Password
-__/password__  
-**HttpHeader:**'Authorization': token  
-**Content-Type:** "application/json"   
-
-
-###API 4: Change Profile(PUT)
-// avatar might be too large to upload every time?  
-__/profile__  
-Only the following fields can be changed through this method: firstName, lastName, gender, birthday, avatar, phone, other. Password has to be changed in forget password. Email cannot be changed once register is finished.  
-**HttpHeader:**'Authorization': token   
-**Content-Type:** "application/json"  
-**Request Body:** firstName, lastName, gender, birthday, avatar, phone, other  
-
-
-###API 5: Login(POST)
-__/login__  
-The user will get a token the first time it logs in. When the user reopen the app, the token will be validated first. If it's still valid, the user will be automatically logged in, otherwise, the user will be asked to enter login info again    
-**Content-Type:** "application/json"  
-**Request Body:** email, password  
-
-
-###API 6: Sign Up(POST)
-__/signup__   
-**Content-Type:** "application/json"  
-**Request Body:** userInfo: {token: '', firstName:'', lastName:'', gender: '', birthday: '', avatar: '', phone: '', other: ''}  
-Avatar, gender, other are not required. Other fields are required.  //phone?
-
-
-###API 7: Avatar(PUT)
-__/avatar__  
-The server will upload the profile pic to s3 storage  
-**HttpHeader:**'Authorization': token  
-**Content-Type:** "application/json"   
-**Request Body:** the binary data of the picture  
-
-
-###API 8: Get Profile(GET)
-__/profile__
-Before the user tries to update the profile, this api will provide the information stored in the database for reference.  
-**HttpHeader:**'Authorization': token  
-**Content-Type:** "application/json"   
